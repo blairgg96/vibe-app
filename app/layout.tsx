@@ -3,7 +3,7 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'What to do in Fife',
+  title: 'Fife Family Fun',
   description: 'Simple Fife places and live local event ideas in one view.',
 }
 
