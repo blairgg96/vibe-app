@@ -18,6 +18,41 @@ const LIST_END_MARKERS = [
   '### Sponsored Links',
 ]
 
+const FAMILY_POSITIVE_KEYWORDS = [
+  'family',
+  'kids',
+  'children',
+  'child',
+  'toddler',
+  'baby',
+  'easter',
+  'play',
+  'farm',
+  'lambing',
+  'comic',
+  'toy',
+  'gala',
+  'funfair',
+  'soft play',
+  'park',
+  'trail',
+  'festival',
+  'outdoor',
+  'day out',
+]
+
+const FAMILY_NEGATIVE_KEYWORDS = [
+  'wedding',
+  'weddings',
+  'wedding fair',
+  'wedding open day',
+  'bridal',
+  'venue hire',
+  'corporate',
+  'networking',
+  'business',
+]
+
 type EventsResult = {
   events: LocalEvent[]
   sourceUrl: string
@@ -41,15 +76,17 @@ export async function getFifeEvents(): Promise<EventsResult> {
     ])
     const localEvents = getSavedLocalEvents(notionEvents ?? savedEvents)
     const rankedEvents = orderFamilyEvents(
-      filterUpcomingEvents(
-        dedupeEvents([
-          ...localEvents,
-          ...familyEvents,
-          ...daysOutEvents,
-          ...welcomeEvents,
-          ...eventbriteEvents,
-          ...onFifeEvents,
-        ]),
+      filterFamilyRelevantEvents(
+        filterUpcomingEvents(
+          dedupeEvents([
+            ...localEvents,
+            ...familyEvents,
+            ...daysOutEvents,
+            ...welcomeEvents,
+            ...eventbriteEvents,
+            ...onFifeEvents,
+          ]),
+        ),
       ),
     )
     const selectedEvents = withSourceCoverage(rankedEvents).slice(0, EVENT_LIMIT)
@@ -308,6 +345,27 @@ function filterUpcomingEvents(events: LocalEvent[]) {
     }
 
     return timestamp >= startOfTodayTimestamp
+  })
+}
+
+function filterFamilyRelevantEvents(events: LocalEvent[]) {
+  return events.filter((event) => {
+    const haystack =
+      `${event.title} ${event.summary} ${event.category} ${event.location}`.toLowerCase()
+
+    if (FAMILY_NEGATIVE_KEYWORDS.some((keyword) => haystack.includes(keyword))) {
+      return false
+    }
+
+    if (
+      event.sourceName === 'Gala Day' ||
+      event.category === 'Family and Kids' ||
+      event.category === 'Days Out'
+    ) {
+      return true
+    }
+
+    return FAMILY_POSITIVE_KEYWORDS.some((keyword) => haystack.includes(keyword))
   })
 }
 
