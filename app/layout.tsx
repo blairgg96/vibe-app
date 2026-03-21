@@ -3,15 +3,15 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Fife Family Fun',
+  title: 'Fife Family Picks',
   description: 'Simple Fife places and live local event ideas in one view.',
   openGraph: {
-    title: 'Fife Family Fun',
+    title: 'Fife Family Picks',
     description: 'Simple Fife places and live local event ideas in one view.',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Fife Family Fun',
+    title: 'Fife Family Picks',
     description: 'Simple Fife places and live local event ideas in one view.',
   },
 }

@@ -219,7 +219,7 @@ export function EventsPanel({
             <div className="overflow-hidden rounded-2xl bg-white/90 p-1 ring-1 ring-slate-200">
               <Image
                 src="/logo.png"
-                alt="Fife Family Fun logo"
+                alt="Fife Family Picks logo"
                 width={56}
                 height={56}
                 priority
@@ -227,7 +227,7 @@ export function EventsPanel({
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
-                Fife Family Fun
+                Fife Family Picks
               </p>
               <p className="mt-1 text-sm text-slate-500">
                 Family days out, local events, and quick ideas across Fife.
