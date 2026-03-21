@@ -23,6 +23,7 @@ export function EventsPanel({
   const [sourceFilter, setSourceFilter] = useState<'all' | string>('all')
   const [locationFilter, setLocationFilter] = useState<'all' | string>('all')
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [imageLoadErrors, setImageLoadErrors] = useState<Record<string, true>>({})
   const [preview, setPreview] = useState<PreviewState>({
     status: 'idle',
     event: null,
@@ -208,6 +209,22 @@ export function EventsPanel({
     })
   }
 
+  function hasUsableImage(value: string | null | undefined) {
+    return Boolean(value && !imageLoadErrors[value])
+  }
+
+  function markImageFailed(value: string | null | undefined) {
+    if (!value) return
+
+    setImageLoadErrors((current) => {
+      if (current[value]) return current
+      return {
+        ...current,
+        [value]: true,
+      }
+    })
+  }
+
   return (
     <>
       <MagicCard
@@ -273,10 +290,12 @@ export function EventsPanel({
                       className="w-full shrink-0 bg-white transition focus:outline-none focus:ring-2 focus:ring-sky-300"
                     >
                       <div className="relative h-52 bg-slate-200 sm:h-64">
-                        {event.image ? (
-                          <div
-                            className="absolute inset-0 bg-cover bg-center"
-                            style={{ backgroundImage: `url("${event.image}")` }}
+                        {hasUsableImage(event.image) ? (
+                          <img
+                            src={event.image ?? ''}
+                            alt=""
+                            onError={() => markImageFailed(event.image)}
+                            className="absolute inset-0 h-full w-full object-cover"
                           />
                         ) : (
                           <div className="absolute inset-0 bg-[linear-gradient(135deg,#dbeafe_0%,#f8fafc_55%,#fde68a_100%)]" />
@@ -513,11 +532,24 @@ export function EventsPanel({
 
             {preview.status === 'ready' ? (
               <div className="px-6 py-6">
-                {preview.details.image ? (
-                  <div
-                    className="h-64 rounded-[1.75rem] bg-slate-100 bg-cover bg-center"
-                    style={{ backgroundImage: `url("${preview.details.image}")` }}
+                {hasUsableImage(preview.details.image) ? (
+                  <img
+                    src={preview.details.image ?? ''}
+                    alt=""
+                    onError={() => markImageFailed(preview.details.image)}
+                    className="h-64 w-full rounded-[1.75rem] bg-slate-100 object-cover"
                   />
+                ) : (
+                  <div className="flex h-64 items-end rounded-[1.75rem] bg-[linear-gradient(135deg,#dbeafe_0%,#f8fafc_55%,#fde68a_100%)] p-6">
+                    <div className="max-w-lg">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
+                        {preview.details.category}
+                      </p>
+                      <p className="mt-3 text-2xl font-semibold text-slate-950">
+                        {preview.event?.title}
+                      </p>
+                    </div>
+                  </div>
                 ) : null}
 
                 <div className="mt-5 flex flex-wrap gap-2">
