@@ -535,25 +535,19 @@ export function EventsPanel({
 
             {preview.status === 'ready' ? (
               <div className="px-6 py-6">
-                {hasUsableImage(preview.details.image) ? (
-                  <img
-                    src={preview.details.image ?? ''}
-                    alt=""
-                    onError={() => markImageFailed(preview.details.image)}
-                    className="h-64 w-full rounded-[1.75rem] bg-slate-100 object-cover"
-                  />
-                ) : (
-                  <div className="flex h-64 items-end rounded-[1.75rem] bg-[linear-gradient(135deg,#dbeafe_0%,#f8fafc_55%,#fde68a_100%)] p-6">
-                    <div className="max-w-lg">
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
-                        {preview.details.category}
-                      </p>
-                      <p className="mt-3 text-2xl font-semibold text-slate-950">
-                        {preview.event?.title}
-                      </p>
-                    </div>
+                <div className="flex min-h-64 items-end rounded-[1.75rem] bg-[linear-gradient(135deg,#dbeafe_0%,#f8fafc_55%,#fde68a_100%)] p-6">
+                  <div className="max-w-lg">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
+                      {preview.details.category}
+                    </p>
+                    <p className="mt-3 text-2xl font-semibold text-slate-950">
+                      {preview.event?.title}
+                    </p>
+                    <p className="mt-3 text-sm leading-6 text-slate-600">
+                      {preview.details.venue}
+                    </p>
                   </div>
-                ) : null}
+                </div>
 
                 <div className="mt-5 flex flex-wrap gap-2">
                   <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
