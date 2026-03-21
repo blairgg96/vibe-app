@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import EventsPage from '@/app/planner/page'
 
-const shareImage = '/fb-preview-v2.png'
+const shareImage = '/logo.png'
 
 export const metadata: Metadata = {
   title: 'Fife Family Picks',
@@ -13,8 +13,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: shareImage,
-        width: 1200,
-        height: 630,
+        width: 1024,
+        height: 1024,
         alt: 'Fife Family Picks',
       },
     ],

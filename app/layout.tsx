@@ -13,7 +13,7 @@ const siteOrigin = siteUrl
     : `https://${siteUrl}`
   : undefined
 
-const facebookPreviewImage = '/fb-preview-v2.png'
+const socialPreviewImage = '/logo.png'
 
 export const metadata: Metadata = {
   metadataBase: siteOrigin ? new URL(siteOrigin) : undefined,
@@ -26,9 +26,9 @@ export const metadata: Metadata = {
     url: siteOrigin,
     images: [
       {
-        url: facebookPreviewImage,
-        width: 1200,
-        height: 630,
+        url: socialPreviewImage,
+        width: 1024,
+        height: 1024,
         alt: 'Fife Family Picks',
       },
     ],
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Fife Family Picks',
     description: 'Simple Fife places and live local event ideas in one view.',
-    images: [facebookPreviewImage],
+    images: [socialPreviewImage],
   },
 }
 
