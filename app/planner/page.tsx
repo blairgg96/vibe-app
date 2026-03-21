@@ -28,16 +28,20 @@ export default async function PlannerPage({
           </p>
         </section>
 
-        <SmartSearch
-          events={events}
-          initialQuery={q ?? ''}
-          mode="interactive"
-          browseHref="/planner"
-          includePlaces={false}
-        />
-
         <section className="mt-8">
-          <EventsPanel events={events} warning={warning} />
+          <EventsPanel
+            events={events}
+            warning={warning}
+            searchSlot={
+              <SmartSearch
+                events={events}
+                initialQuery={q ?? ''}
+                mode="interactive"
+                browseHref="/planner"
+                includePlaces={false}
+              />
+            }
+          />
         </section>
       </div>
     </main>

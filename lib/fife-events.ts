@@ -362,8 +362,11 @@ function withSourceCoverage(events: LocalEvent[]) {
   const selected: LocalEvent[] = []
   const seen = new Set<string>()
 
-  for (const sourceEvents of bySource.values()) {
-    for (const event of sourceEvents.slice(0, 2)) {
+  for (const [sourceName, sourceEvents] of bySource.entries()) {
+    const guaranteedEvents =
+      sourceName === 'Gala Day' ? sourceEvents : sourceEvents.slice(0, 2)
+
+    for (const event of guaranteedEvents) {
       const key = `${event.title}-${event.dateLabel}-${event.location}`
       if (seen.has(key)) continue
       seen.add(key)
@@ -384,6 +387,10 @@ function withSourceCoverage(events: LocalEvent[]) {
 async function enrichEventsWithImages(events: LocalEvent[]) {
   return Promise.all(
     events.map(async (event) => {
+      if (event.image) {
+        return event
+      }
+
       const image = await getEventImage(event.link)
       return {
         ...event,

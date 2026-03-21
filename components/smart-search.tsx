@@ -305,10 +305,14 @@ function scoreEventResult(event: LocalEvent, query: string): Result | null {
     kind: 'event',
     title: event.title,
     subtitle: `${event.location} • ${event.dateLabel}`,
-    hint: `${event.category} from ${event.sourceName}`,
+    hint: `${event.category} from ${getSearchSourceLabel(event.sourceName)}`,
     score,
     eventLink: event.link,
   }
+}
+
+function getSearchSourceLabel(sourceName: string) {
+  return sourceName === 'Gala Day' ? 'Events' : sourceName
 }
 
 function scorePlaceResult(

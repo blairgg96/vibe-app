@@ -32,4 +32,14 @@ export const savedEvents: SavedEvent[] = [
     note: 'Public gala day with a parade starting at the Harley Street entrance at 11:30 and a full day of family fun in the park.',
     sourceUrl: 'https://www.facebook.com/events/787705447588850/?active_tab=discussion',
   },
+  {
+    id: 'facebook-lochgelly-childrens-gala-2026',
+    name: "Lochgelly Children's Gala",
+    town: 'Lochgelly',
+    date: '2026-08-16',
+    time: '11:00-16:00',
+    location: 'Melville Street',
+    note: "Public children's gala in Lochgelly running from 11:00 to 16:00.",
+    sourceUrl: 'https://www.facebook.com/events/712748008586483',
+  },
 ]
