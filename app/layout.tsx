@@ -5,6 +5,15 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'Fife Family Fun',
   description: 'Simple Fife places and live local event ideas in one view.',
+  openGraph: {
+    title: 'Fife Family Fun',
+    description: 'Simple Fife places and live local event ideas in one view.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Fife Family Fun',
+    description: 'Simple Fife places and live local event ideas in one view.',
+  },
 }
 
 export default function RootLayout({

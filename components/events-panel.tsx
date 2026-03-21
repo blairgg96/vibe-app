@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useMemo, useState } from 'react'
 import { MagicCard } from '@/components/ui/magic-card'
 import type { EventPreview, LocalEvent } from '@/types/local-event'
@@ -214,12 +215,26 @@ export function EventsPanel({
         className="p-4 sm:p-6"
       >
         <div>
-          <h1 className="text-2xl font-semibold text-slate-950 sm:text-3xl">
-            Fife events
-          </h1>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            A simple carousel with a live list of local family-friendly events.
-          </p>
+          <div className="flex items-center gap-3">
+            <div className="overflow-hidden rounded-2xl bg-white/90 p-1 ring-1 ring-slate-200">
+              <Image
+                src="/logo.png"
+                alt="Fife Family Fun logo"
+                width={56}
+                height={56}
+                priority
+              />
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
+                Fife Family Fun
+              </p>
+              <p className="mt-1 text-sm text-slate-500">
+                Family days out, local events, and quick ideas across Fife.
+              </p>
+            </div>
+          </div>
+
         </div>
 
         {warning ? (
