@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { MagicCard } from '@/components/ui/magic-card'
 import { places } from '@/data/places'
 
-type PlannerFilters = {
+type PlaceFilters = {
   indoorOnly?: boolean
   freeOnly?: boolean
   toddlerOnly?: boolean
@@ -33,7 +34,7 @@ export function PlaceFinder() {
     function handleFocusPlace(event: Event) {
       const customEvent = event as CustomEvent<{
         placeId?: number
-        filters?: PlannerFilters
+        filters?: PlaceFilters
       }>
 
       const filters = customEvent.detail?.filters
@@ -71,9 +72,9 @@ export function PlaceFinder() {
   }, [])
 
   return (
-    <section
+    <MagicCard
       id="place-finder"
-      className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm"
+      className="p-6"
     >
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -83,7 +84,7 @@ export function PlaceFinder() {
           </p>
         </div>
         <div className="rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600">
-          Backup plan finder
+          Local place finder
         </div>
       </div>
 
@@ -198,6 +199,6 @@ export function PlaceFinder() {
           )}
         </div>
       </div>
-    </section>
+    </MagicCard>
   )
 }

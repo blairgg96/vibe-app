@@ -1,13 +1,12 @@
 'use client'
 
-import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
+import { MagicCard } from '@/components/ui/magic-card'
 import type { EventPreview, LocalEvent } from '@/types/local-event'
 
 type EventsPanelProps = {
   events: LocalEvent[]
   warning?: string
-  searchSlot?: ReactNode
 }
 
 type PreviewState =
@@ -19,11 +18,9 @@ type PreviewState =
 export function EventsPanel({
   events,
   warning,
-  searchSlot,
 }: EventsPanelProps) {
   const [sourceFilter, setSourceFilter] = useState<'all' | string>('all')
   const [locationFilter, setLocationFilter] = useState<'all' | string>('all')
-  const [ageFilter, setAgeFilter] = useState<'all' | string>('all')
   const [currentIndex, setCurrentIndex] = useState(0)
   const [preview, setPreview] = useState<PreviewState>({
     status: 'idle',
@@ -32,18 +29,16 @@ export function EventsPanel({
     error: null,
   })
 
+  const eventLinksSignature = useMemo(() => {
+    return events.map((event) => event.link).join('|')
+  }, [events])
+
   const sourceOptions = useMemo(() => {
     return ['all', ...new Set(events.map((event) => event.sourceName))]
   }, [events])
 
   const locationOptions = useMemo(() => {
     return ['all', ...new Set(events.map((event) => getTownLabel(event.location)))]
-  }, [events])
-
-  const ageOptions = ['all', 'babies', 'toddlers', 'kids', 'teens', 'family'] as const
-
-  const eventLinksSignature = useMemo(() => {
-    return events.map((event) => event.link).join('|')
   }, [events])
 
   const filteredEvents = useMemo(() => {
@@ -59,13 +54,9 @@ export function EventsPanel({
         return false
       }
 
-      if (ageFilter !== 'all' && inferAgeGroup(event) !== ageFilter) {
-        return false
-      }
-
       return true
     })
-  }, [ageFilter, events, locationFilter, sourceFilter])
+  }, [events, locationFilter, sourceFilter])
 
   useEffect(() => {
     setCurrentIndex(0)
@@ -202,16 +193,16 @@ export function EventsPanel({
 
   return (
     <>
-      <section
+      <MagicCard
         id="events-panel"
-        className="rounded-[2rem] border border-slate-200 bg-slate-50 p-6"
+        className="p-4 sm:p-6"
       >
         <div>
-          <h2 className="text-xl font-semibold text-slate-950">
-            Family days out
-          </h2>
+          <h1 className="text-2xl font-semibold text-slate-950 sm:text-3xl">
+            Fife events
+          </h1>
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            A simple live feed from multiple family-friendly sources.
+            A simple carousel with a live list of local family-friendly events.
           </p>
         </div>
 
@@ -250,7 +241,7 @@ export function EventsPanel({
                       }}
                       className="w-full shrink-0 bg-white transition focus:outline-none focus:ring-2 focus:ring-sky-300"
                     >
-                      <div className="relative h-64 bg-slate-200">
+                      <div className="relative h-52 bg-slate-200 sm:h-64">
                         {event.image ? (
                           <div
                             className="absolute inset-0 bg-cover bg-center"
@@ -271,17 +262,17 @@ export function EventsPanel({
                             <span className="rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-sky-800">
                               {event.category}
                             </span>
-                            <span className="rounded-full bg-white/90 px-3 py-1 text-xs text-slate-700">
+                            <span className="max-w-full rounded-full bg-white/90 px-3 py-1 text-xs text-slate-700">
                               {event.location}
                             </span>
                           </div>
-                          <h3 className="mt-3 text-2xl font-semibold text-white">
+                          <h3 className="mt-3 text-xl font-semibold text-white sm:text-2xl">
                             {event.title}
                           </h3>
                         </div>
                       </div>
 
-                      <div className="p-5">
+                      <div className="p-4 sm:p-5">
                         <div className="flex flex-wrap items-center gap-2">
                           <span className="rounded-full bg-amber-50 px-3 py-1 text-xs text-amber-800">
                             {event.sourceName}
@@ -303,8 +294,8 @@ export function EventsPanel({
                 </div>
               </div>
 
-              <div className="mt-4 flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
+              <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-2 self-start">
                   {events.map((event, index) => (
                     <button
                       key={`${event.title}-dot`}
@@ -320,18 +311,18 @@ export function EventsPanel({
                   ))}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex w-full items-center gap-2 sm:w-auto">
                   <button
                     type="button"
                     onClick={showPrevious}
-                    className="rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-white"
+                    className="flex-1 rounded-full border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400 hover:bg-white sm:flex-none"
                   >
                     Prev
                   </button>
                   <button
                     type="button"
                     onClick={showNext}
-                    className="rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+                    className="flex-1 rounded-full bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 sm:flex-none"
                   >
                     Next
                   </button>
@@ -341,25 +332,25 @@ export function EventsPanel({
           )}
         </div>
 
-        {searchSlot ? <div className="mt-8">{searchSlot}</div> : null}
+        <div className="mt-6 rounded-[1.5rem] border border-slate-200 bg-white p-4 sm:mt-8 sm:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+            <h2 className="text-lg font-semibold text-slate-950">Event list</h2>
 
-        <div className="mt-8 rounded-[1.5rem] border border-slate-200 bg-white p-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h3 className="text-lg font-semibold text-slate-950">Events</h3>
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-center">
               <label
                 htmlFor="event-source-filter"
                 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500"
               >
                 Filter
               </label>
-              <div className="relative">
+
+              <div className="relative w-full sm:w-auto">
                 <select
                   id="event-source-filter"
                   value={sourceFilter}
                   onChange={(event) => setSourceFilter(event.target.value)}
                   suppressHydrationWarning
-                  className="appearance-none rounded-full border border-slate-300 bg-white px-4 py-2 pr-12 text-sm text-slate-700 outline-none transition focus:border-sky-400"
+                  className="w-full appearance-none rounded-full border border-slate-300 bg-white px-4 py-2 pr-12 text-sm text-slate-700 outline-none transition focus:border-sky-400"
                 >
                   {sourceOptions.map((option) => (
                     <option key={option} value={option}>
@@ -372,36 +363,16 @@ export function EventsPanel({
                 </span>
               </div>
 
-              <div className="relative">
+              <div className="relative w-full sm:w-auto">
                 <select
                   value={locationFilter}
                   onChange={(event) => setLocationFilter(event.target.value)}
                   suppressHydrationWarning
-                  className="appearance-none rounded-full border border-slate-300 bg-white px-4 py-2 pr-12 text-sm text-slate-700 outline-none transition focus:border-sky-400"
+                  className="w-full appearance-none rounded-full border border-slate-300 bg-white px-4 py-2 pr-12 text-sm text-slate-700 outline-none transition focus:border-sky-400"
                 >
-                      {locationOptions.map((option) => (
-                        <option key={option} value={option}>
-                          {option === 'all' ? 'All locations' : option}
-                        </option>
-                  ))}
-                </select>
-                <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-500">
-                  v
-                </span>
-              </div>
-
-              <div className="relative">
-                <select
-                  value={ageFilter}
-                  onChange={(event) => setAgeFilter(event.target.value)}
-                  suppressHydrationWarning
-                  className="appearance-none rounded-full border border-slate-300 bg-white px-4 py-2 pr-12 text-sm text-slate-700 outline-none transition focus:border-sky-400"
-                >
-                  {ageOptions.map((option) => (
+                  {locationOptions.map((option) => (
                     <option key={option} value={option}>
-                      {option === 'all'
-                        ? 'All ages'
-                        : option.charAt(0).toUpperCase() + option.slice(1)}
+                      {option === 'all' ? 'All locations' : option}
                     </option>
                   ))}
                 </select>
@@ -425,7 +396,7 @@ export function EventsPanel({
                   onClick={() => openPreview(event)}
                   className="rounded-[1.25rem] border border-slate-200 bg-slate-50 p-4 text-left transition hover:border-sky-200 hover:bg-sky-50/50"
                 >
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-sky-800">
                         {event.sourceName}
@@ -434,7 +405,7 @@ export function EventsPanel({
                         {event.location}
                       </span>
                     </div>
-                    <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-base text-slate-900 shadow-sm">
+                    <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center self-end rounded-full bg-white text-base text-slate-900 shadow-sm sm:self-auto">
                       +
                     </span>
                   </div>
@@ -447,7 +418,7 @@ export function EventsPanel({
             )}
           </div>
         </div>
-      </section>
+      </MagicCard>
 
       {preview.status !== 'idle' ? (
         <div
@@ -609,47 +580,6 @@ function createFallbackPreview(event: LocalEvent): EventPreview {
     sourceUrl: event.link,
     bookingUrl: event.link,
   }
-}
-
-function inferAgeGroup(event: LocalEvent) {
-  const haystack =
-    `${event.title} ${event.summary} ${event.category}`.toLowerCase()
-
-  if (
-    haystack.includes('baby') ||
-    haystack.includes('babies') ||
-    haystack.includes('newborn')
-  ) {
-    return 'babies'
-  }
-
-  if (
-    haystack.includes('toddler') ||
-    haystack.includes('under 5') ||
-    haystack.includes('pre-school') ||
-    haystack.includes('preschool')
-  ) {
-    return 'toddlers'
-  }
-
-  if (
-    haystack.includes('teen') ||
-    haystack.includes('12+') ||
-    haystack.includes('13+') ||
-    haystack.includes('young adult')
-  ) {
-    return 'teens'
-  }
-
-  if (
-    haystack.includes('kids') ||
-    haystack.includes('children') ||
-    haystack.includes('child')
-  ) {
-    return 'kids'
-  }
-
-  return 'family'
 }
 
 function getTownLabel(location: string) {

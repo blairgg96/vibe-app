@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fife Events
 
-## Getting Started
+Simple Next.js site for live Fife events plus local gala day entries.
 
-First, run the development server:
+## Run locally
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Event sources
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Live scraped sources already in the app
+- Local fallback events in [data/events.ts](/Users/blairgibson/vibe-app/data/events.ts)
+- Optional Notion database
 
-## Learn More
+## Notion setup
 
-To learn more about Next.js, take a look at the following resources:
+1. Copy `.env.example` to `.env.local`
+2. Add:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+NOTION_TOKEN=your_notion_integration_token
+NOTION_DATABASE_ID=your_notion_database_id
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. Share your Notion database with the integration
 
-## Deploy on Vercel
+Recommended Notion properties:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `Name` as title
+- `Town` as rich text
+- `Date` as date
+- `Time` as rich text
+- `Location` as rich text
+- `Note` as rich text
+- `Source URL` as url
+- `Image` as files or external url
+- `Published` as checkbox
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+If Notion is not configured, the site falls back to [data/events.ts](/Users/blairgibson/vibe-app/data/events.ts).

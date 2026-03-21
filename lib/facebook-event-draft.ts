@@ -1,6 +1,7 @@
 export type FacebookEventDraft = {
   id: string
   name: string
+  category?: string
   town: string
   date: string
   time: string
@@ -16,6 +17,7 @@ export function createFacebookEventDraft(sourceUrl: string): FacebookEventDraft 
   return {
     id: 'new-event-id',
     name: 'Add event name',
+    category: 'Gala',
     town: 'Add town',
     date: '2026-06-01',
     time: '12:00',
@@ -32,6 +34,7 @@ export function formatFacebookEventDraft(sourceUrl: string): string {
   return `{
   id: '${draft.id}',
   name: '${draft.name}',
+  category: '${draft.category}',
   town: '${draft.town}',
   date: '${draft.date}',
   time: '${draft.time}',

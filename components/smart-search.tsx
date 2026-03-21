@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo, useState } from 'react'
+import { MagicCard } from '@/components/ui/magic-card'
 import { places } from '@/data/places'
 import type { LocalEvent } from '@/types/local-event'
 
@@ -32,10 +33,10 @@ type Result =
       hint: string
       score: number
       placeId: number
-      filters?: PlannerFilters
+      filters?: SearchFilters
     }
 
-type PlannerFilters = {
+type SearchFilters = {
   indoorOnly?: boolean
   freeOnly?: boolean
   toddlerOnly?: boolean
@@ -69,7 +70,7 @@ export function SmartSearch({
     setQuery(value)
   }
 
-  function openFullPlanner() {
+  function openResults() {
     const params = new URLSearchParams()
     if (query.trim()) {
       params.set('q', query.trim())
@@ -116,36 +117,36 @@ export function SmartSearch({
   }
 
   return (
-    <div className="mt-8 rounded-[1.75rem] border border-slate-200 bg-white/90 p-5 shadow-sm backdrop-blur">
+    <div className="rounded-[1.5rem] bg-transparent">
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
-        Smart planner
+        Search events
       </p>
       <h2 className="mt-3 text-2xl font-semibold text-slate-950">
-        Tell us what kind of day you need.
+        Find an event quickly.
       </h2>
       <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-        Try things like &quot;rainy day&quot;, &quot;free toddler ideas&quot;,
-        &quot;dog-friendly&quot;, or a town like &quot;St Andrews&quot;.
+        Search by town, age group, or words like &quot;free&quot;,
+        &quot;toddlers&quot;, or &quot;outdoors&quot;.
       </p>
 
-      <div className="mt-5 rounded-[1.5rem] border border-slate-200 bg-slate-50 p-3">
+      <MagicCard className="mt-5 p-3">
         <div className="flex flex-col gap-3 sm:flex-row">
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === 'Enter') {
-                openFullPlanner()
+                openResults()
               }
             }}
-            placeholder="Search for a family plan..."
+            placeholder="Search events..."
             suppressHydrationWarning
             className="w-full rounded-[1.1rem] border border-slate-200 bg-white px-4 py-3 text-base text-slate-900 outline-none transition focus:border-sky-400"
           />
           {mode === 'navigate' ? (
             <button
               type="button"
-              onClick={openFullPlanner}
+              onClick={openResults}
               className="rounded-[1.1rem] bg-slate-950 px-5 py-3 text-sm font-medium text-white transition hover:bg-slate-700"
             >
               Search
@@ -165,10 +166,10 @@ export function SmartSearch({
             </button>
           ))}
         </div>
-      </div>
+      </MagicCard>
 
       {topResult ? (
-        <div className="mt-5 rounded-[1.5rem] border border-sky-100 bg-sky-50/70 p-4">
+        <MagicCard className="mt-5 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
             Best match
           </p>
@@ -186,32 +187,33 @@ export function SmartSearch({
               onClick={() => openResult(topResult)}
               className="rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
             >
-              Open match
+              Open event
             </button>
           </div>
-        </div>
+        </MagicCard>
       ) : null}
 
       {query.trim() ? (
         <div className="mt-5 grid gap-3 md:grid-cols-2">
           {results.map((result) => (
-            <button
-              key={result.id}
-              type="button"
-              onClick={() => openResult(result)}
-              className="rounded-[1.25rem] border border-slate-200 bg-white p-4 text-left transition hover:border-sky-200 hover:bg-sky-50/40"
-            >
-              <div className="flex items-center gap-2">
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                  {result.kind === 'event' ? 'Event' : 'Place'}
-                </span>
-              </div>
-              <h3 className="mt-3 text-base font-semibold text-slate-950">
-                {result.title}
-              </h3>
-              <p className="mt-1 text-sm text-slate-600">{result.subtitle}</p>
-              <p className="mt-2 text-sm text-slate-500">{result.hint}</p>
-            </button>
+            <MagicCard key={result.id} className="p-0">
+              <button
+                type="button"
+                onClick={() => openResult(result)}
+                className="w-full rounded-[1.25rem] p-4 text-left transition hover:border-sky-200 hover:bg-sky-50/40"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                    {result.kind === 'event' ? 'Event' : 'Place'}
+                  </span>
+                </div>
+                <h3 className="mt-3 text-base font-semibold text-slate-950">
+                  {result.title}
+                </h3>
+                <p className="mt-1 text-sm text-slate-600">{result.subtitle}</p>
+                <p className="mt-2 text-sm text-slate-500">{result.hint}</p>
+              </button>
+            </MagicCard>
           ))}
         </div>
       ) : null}
@@ -222,7 +224,7 @@ export function SmartSearch({
             href={browseHref}
             className="text-sm font-medium text-sky-700 underline decoration-sky-200 underline-offset-4"
           >
-            Go straight to the full planner
+            View all events
           </Link>
         </div>
       ) : null}
@@ -257,7 +259,7 @@ function getSearchResults(
   })
 }
 
-function getIntentFilters(query: string): PlannerFilters {
+function getIntentFilters(query: string): SearchFilters {
   return {
     indoorOnly: query.includes('rainy') || query.includes('indoor'),
     freeOnly: query.includes('free') || query.includes('cheap'),
@@ -318,7 +320,7 @@ function getSearchSourceLabel(sourceName: string) {
 function scorePlaceResult(
   place: (typeof places)[number],
   query: string,
-  intentFilters: PlannerFilters,
+  intentFilters: SearchFilters,
 ): Result | null {
   const haystack =
     `${place.name} ${place.description} ${place.town} ${place.area}`.toLowerCase()

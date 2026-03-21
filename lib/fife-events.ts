@@ -1,6 +1,7 @@
-import { savedEvents } from '@/data/events'
+import { savedEvents, type SavedEvent } from '@/data/events'
 import type { LocalEvent } from '@/types/local-event'
 import { getEventbriteEvents } from '@/lib/eventbrite'
+import { getNotionEvents } from '@/lib/notion-events'
 import { getOnFifeEvents } from '@/lib/onfife'
 import { getWelcomeToFifeEvents } from '@/lib/welcome-to-fife'
 
@@ -32,12 +33,13 @@ export async function getFifeEvents(): Promise<EventsResult> {
 
     const familyEvents = parseWhatsOnFifeListing(familyHtml, 'Family and Kids')
     const daysOutEvents = parseWhatsOnFifeListing(daysOutHtml, 'Days Out')
-    const [welcomeEvents, eventbriteEvents, onFifeEvents] = await Promise.all([
+    const [welcomeEvents, eventbriteEvents, onFifeEvents, notionEvents] = await Promise.all([
       getWelcomeToFifeEvents().catch(() => []),
       getEventbriteEvents().catch(() => []),
       getOnFifeEvents().catch(() => []),
+      getNotionEvents().catch(() => null),
     ])
-    const localEvents = getSavedLocalEvents()
+    const localEvents = getSavedLocalEvents(notionEvents ?? savedEvents)
     const rankedEvents = orderFamilyEvents(
       filterUpcomingEvents(
         dedupeEvents([
@@ -73,16 +75,22 @@ export async function getFifeEvents(): Promise<EventsResult> {
   }
 }
 
-function getSavedLocalEvents(): LocalEvent[] {
-  return savedEvents
+function getSavedLocalEvents(events: SavedEvent[]): LocalEvent[] {
+  const localImageBySourceUrl = new Map(
+    savedEvents
+      .filter((event) => event.image)
+      .map((event) => [event.sourceUrl, event.image] as const),
+  )
+
+  return events
     .filter(isReadySavedEvent)
     .map((event) => ({
       title: event.name,
       dateLabel: formatSavedEventDate(event.date, event.time),
-      category: 'Local event',
+      category: event.category ?? inferSavedEventCategory(event.name),
       location: `${event.location}, ${event.town}`,
       summary: event.note,
-      image: event.image ?? null,
+      image: event.image ?? localImageBySourceUrl.get(event.sourceUrl) ?? null,
       link: event.sourceUrl,
       sourceName: 'Gala Day',
     }))
@@ -114,6 +122,10 @@ function formatSavedEventDate(date: string, time: string) {
   })
 
   return `${formatter.format(parsedDate)}${time ? `, ${time}` : ''}`
+}
+
+function inferSavedEventCategory(name: string) {
+  return name.toLowerCase().includes('gala') ? 'Gala' : 'Event'
 }
 
 async function fetchSource(url: string) {

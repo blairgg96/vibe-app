@@ -1,6 +1,7 @@
 export type SavedEvent = {
   id: string
   name: string
+  category?: string
   town: string
   date: string
   time: string
@@ -14,6 +15,7 @@ export const savedEvents: SavedEvent[] = [
   {
     id: 'facebook-1223760206635671',
     name: 'Benarty Gala',
+    category: 'Gala',
     town: 'Lochgelly',
     date: '2026-06-28',
     time: 'From 10:30',
@@ -25,6 +27,7 @@ export const savedEvents: SavedEvent[] = [
   {
     id: 'facebook-rosyth-gala-2026',
     name: 'Rosyth Gala',
+    category: 'Gala',
     town: 'Dunfermline',
     date: '2026-05-30',
     time: '11:30',
@@ -35,6 +38,7 @@ export const savedEvents: SavedEvent[] = [
   {
     id: 'facebook-lochgelly-childrens-gala-2026',
     name: "Lochgelly Children's Gala",
+    category: 'Gala',
     town: 'Lochgelly',
     date: '2026-08-16',
     time: '11:00-16:00',
