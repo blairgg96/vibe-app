@@ -154,6 +154,9 @@ export function EventsPanel({
       location: event.location,
       category: event.category,
     })
+    if (event.image) {
+      params.set('image', event.image)
+    }
 
     try {
       const response = await fetch(`/api/events/preview?${params.toString()}`)

@@ -42,6 +42,7 @@ export async function GET(request: NextRequest) {
       dateLabel: searchParams.get('dateLabel'),
       location: searchParams.get('location'),
       category: searchParams.get('category'),
+      image: searchParams.get('image'),
     })
 
     return Response.json(preview)
@@ -71,6 +72,7 @@ function parseEventPreview(
     dateLabel: string | null
     location: string | null
     category: string | null
+    image: string | null
   },
 ): EventPreview {
   const title =
@@ -87,6 +89,7 @@ function parseEventPreview(
     'More information is available on the source listing page.'
 
   const image =
+    fallback.image ??
     getMetaContent(html, 'property', 'og:image') ??
     getJsonLdValue(html, 'image') ??
     null
