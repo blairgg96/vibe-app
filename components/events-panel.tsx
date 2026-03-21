@@ -1,11 +1,13 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import type { EventPreview, LocalEvent } from '@/types/local-event'
 
 type EventsPanelProps = {
   events: LocalEvent[]
   warning?: string
+  searchSlot?: ReactNode
 }
 
 type PreviewState =
@@ -17,6 +19,7 @@ type PreviewState =
 export function EventsPanel({
   events,
   warning,
+  searchSlot,
 }: EventsPanelProps) {
   const [sourceFilter, setSourceFilter] = useState<'all' | string>('all')
   const [locationFilter, setLocationFilter] = useState<'all' | string>('all')
@@ -118,6 +121,16 @@ export function EventsPanel({
   }, [preview.status])
 
   async function openPreview(event: LocalEvent) {
+    if (!supportsRemotePreview(event.link)) {
+      setPreview({
+        status: 'ready',
+        event,
+        details: createFallbackPreview(event),
+        error: null,
+      })
+      return
+    }
+
     setPreview({
       status: 'loading',
       event,
@@ -328,9 +341,11 @@ export function EventsPanel({
           )}
         </div>
 
+        {searchSlot ? <div className="mt-8">{searchSlot}</div> : null}
+
         <div className="mt-8 rounded-[1.5rem] border border-slate-200 bg-white p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h3 className="text-lg font-semibold text-slate-950">Event list</h3>
+            <h3 className="text-lg font-semibold text-slate-950">Events</h3>
             <div className="flex flex-wrap items-center gap-3">
               <label
                 htmlFor="event-source-filter"
@@ -565,6 +580,35 @@ function hasError(
   payload: EventPreview | { error?: string },
 ): payload is { error?: string } {
   return 'error' in payload
+}
+
+function supportsRemotePreview(value: string) {
+  try {
+    const url = new URL(value)
+
+    return new Set([
+      'welcometofife.com',
+      'www.welcometofife.com',
+      'whatsonfife.co.uk',
+      'www.whatsonfife.co.uk',
+    ]).has(url.hostname)
+  } catch {
+    return false
+  }
+}
+
+function createFallbackPreview(event: LocalEvent): EventPreview {
+  return {
+    title: event.title,
+    summary: event.summary,
+    image: event.image,
+    venue: event.location,
+    address: null,
+    dateLabel: event.dateLabel,
+    category: event.category,
+    sourceUrl: event.link,
+    bookingUrl: event.link,
+  }
 }
 
 function inferAgeGroup(event: LocalEvent) {

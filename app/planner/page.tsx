@@ -1,4 +1,5 @@
 import { EventsPanel } from '@/components/events-panel'
+import { SmartSearch } from '@/components/smart-search'
 import { getFifeEvents } from '@/lib/fife-events'
 
 export const dynamic = 'force-dynamic'
@@ -9,7 +10,7 @@ export default async function PlannerPage({
   searchParams: Promise<{ q?: string }>
 }) {
   const { events, warning } = await getFifeEvents()
-  await searchParams
+  const { q } = await searchParams
 
   return (
     <main className="min-h-screen bg-[linear-gradient(180deg,#f8fbff_0%,#ffffff_38%,#f8fafc_100%)] px-6 py-10 text-slate-900">
@@ -28,7 +29,19 @@ export default async function PlannerPage({
         </section>
 
         <section className="mt-8">
-          <EventsPanel events={events} warning={warning} />
+          <EventsPanel
+            events={events}
+            warning={warning}
+            searchSlot={
+              <SmartSearch
+                events={events}
+                initialQuery={q ?? ''}
+                mode="interactive"
+                browseHref="/planner"
+                includePlaces={false}
+              />
+            }
+          />
         </section>
       </div>
     </main>

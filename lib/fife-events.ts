@@ -1,3 +1,4 @@
+import { savedEvents } from '@/data/events'
 import type { LocalEvent } from '@/types/local-event'
 import { getEventbriteEvents } from '@/lib/eventbrite'
 import { getOnFifeEvents } from '@/lib/onfife'
@@ -36,14 +37,18 @@ export async function getFifeEvents(): Promise<EventsResult> {
       getEventbriteEvents().catch(() => []),
       getOnFifeEvents().catch(() => []),
     ])
+    const localEvents = getSavedLocalEvents()
     const rankedEvents = orderFamilyEvents(
-      dedupeEvents([
-        ...familyEvents,
-        ...daysOutEvents,
-        ...welcomeEvents,
-        ...eventbriteEvents,
-        ...onFifeEvents,
-      ]),
+      filterUpcomingEvents(
+        dedupeEvents([
+          ...localEvents,
+          ...familyEvents,
+          ...daysOutEvents,
+          ...welcomeEvents,
+          ...eventbriteEvents,
+          ...onFifeEvents,
+        ]),
+      ),
     )
     const selectedEvents = withSourceCoverage(rankedEvents).slice(0, EVENT_LIMIT)
     const events = await enrichEventsWithImages(selectedEvents)
@@ -66,6 +71,49 @@ export async function getFifeEvents(): Promise<EventsResult> {
         'Live events could not be loaded right now, so this panel is showing a graceful empty state.',
     }
   }
+}
+
+function getSavedLocalEvents(): LocalEvent[] {
+  return savedEvents
+    .filter(isReadySavedEvent)
+    .map((event) => ({
+      title: event.name,
+      dateLabel: formatSavedEventDate(event.date, event.time),
+      category: 'Local event',
+      location: `${event.location}, ${event.town}`,
+      summary: event.note,
+      image: event.image ?? null,
+      link: event.sourceUrl,
+      sourceName: 'Gala Day',
+    }))
+}
+
+function isReadySavedEvent(event: (typeof savedEvents)[number]) {
+  const values = [
+    event.name,
+    event.town,
+    event.location,
+    event.note,
+  ]
+
+  return values.every((value) => !value.toLowerCase().startsWith('add '))
+}
+
+function formatSavedEventDate(date: string, time: string) {
+  const parsedDate = new Date(date)
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return `${date} ${time}`.trim()
+  }
+
+  const formatter = new Intl.DateTimeFormat('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+
+  return `${formatter.format(parsedDate)}${time ? `, ${time}` : ''}`
 }
 
 async function fetchSource(url: string) {
@@ -235,6 +283,22 @@ function dedupeEvents(events: LocalEvent[]) {
   })
 }
 
+function filterUpcomingEvents(events: LocalEvent[]) {
+  const startOfToday = new Date()
+  startOfToday.setHours(0, 0, 0, 0)
+  const startOfTodayTimestamp = startOfToday.getTime()
+
+  return events.filter((event) => {
+    const timestamp = getSortTimestamp(event.dateLabel)
+
+    if (timestamp === Number.MAX_SAFE_INTEGER) {
+      return true
+    }
+
+    return timestamp >= startOfTodayTimestamp
+  })
+}
+
 function orderFamilyEvents(events: LocalEvent[]) {
   return [...events].sort((left, right) => {
     const scoreDifference = scoreEvent(right) - scoreEvent(left)
@@ -298,8 +362,11 @@ function withSourceCoverage(events: LocalEvent[]) {
   const selected: LocalEvent[] = []
   const seen = new Set<string>()
 
-  for (const sourceEvents of bySource.values()) {
-    for (const event of sourceEvents.slice(0, 2)) {
+  for (const [sourceName, sourceEvents] of bySource.entries()) {
+    const guaranteedEvents =
+      sourceName === 'Gala Day' ? sourceEvents : sourceEvents.slice(0, 2)
+
+    for (const event of guaranteedEvents) {
       const key = `${event.title}-${event.dateLabel}-${event.location}`
       if (seen.has(key)) continue
       seen.add(key)
@@ -320,6 +387,10 @@ function withSourceCoverage(events: LocalEvent[]) {
 async function enrichEventsWithImages(events: LocalEvent[]) {
   return Promise.all(
     events.map(async (event) => {
+      if (event.image) {
+        return event
+      }
+
       const image = await getEventImage(event.link)
       return {
         ...event,

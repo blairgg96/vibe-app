@@ -11,6 +11,7 @@ type SmartSearchProps = {
   initialQuery?: string
   mode?: 'navigate' | 'interactive'
   browseHref: string
+  includePlaces?: boolean
 }
 
 type Result =
@@ -53,13 +54,14 @@ export function SmartSearch({
   initialQuery = '',
   mode = 'interactive',
   browseHref,
+  includePlaces = true,
 }: SmartSearchProps) {
   const router = useRouter()
   const [query, setQuery] = useState(initialQuery)
 
   const results = useMemo(() => {
-    return getSearchResults(query, events).slice(0, 6)
-  }, [events, query])
+    return getSearchResults(query, events, includePlaces).slice(0, 6)
+  }, [events, includePlaces, query])
 
   const topResult = results[0] ?? null
 
@@ -228,7 +230,11 @@ export function SmartSearch({
   )
 }
 
-function getSearchResults(query: string, events: LocalEvent[]): Result[] {
+function getSearchResults(
+  query: string,
+  events: LocalEvent[],
+  includePlaces: boolean,
+): Result[] {
   const normalizedQuery = query.trim().toLowerCase()
 
   if (!normalizedQuery) {
@@ -240,9 +246,11 @@ function getSearchResults(query: string, events: LocalEvent[]): Result[] {
     .map((event) => scoreEventResult(event, normalizedQuery))
     .filter((result): result is Result => result !== null)
 
-  const placeResults = places
-    .map((place) => scorePlaceResult(place, normalizedQuery, intentFilters))
-    .filter((result): result is Result => result !== null)
+  const placeResults = includePlaces
+    ? places
+        .map((place) => scorePlaceResult(place, normalizedQuery, intentFilters))
+        .filter((result): result is Result => result !== null)
+    : []
 
   return [...eventResults, ...placeResults].sort((left, right) => {
     return right.score - left.score
@@ -297,10 +305,14 @@ function scoreEventResult(event: LocalEvent, query: string): Result | null {
     kind: 'event',
     title: event.title,
     subtitle: `${event.location} • ${event.dateLabel}`,
-    hint: `${event.category} from ${event.sourceName}`,
+    hint: `${event.category} from ${getSearchSourceLabel(event.sourceName)}`,
     score,
     eventLink: event.link,
   }
+}
+
+function getSearchSourceLabel(sourceName: string) {
+  return sourceName === 'Gala Day' ? 'Events' : sourceName
 }
 
 function scorePlaceResult(
