@@ -63,6 +63,22 @@ export function EventsPanel({
   }, [eventLinksSignature])
 
   useEffect(() => {
+    if (events.length <= 1) return
+    if (preview.status !== 'idle') return
+
+    const intervalId = window.setInterval(() => {
+      setCurrentIndex((index) => {
+        if (events.length === 0) return 0
+        return index === events.length - 1 ? 0 : index + 1
+      })
+    }, 5000)
+
+    return () => {
+      window.clearInterval(intervalId)
+    }
+  }, [events.length, preview.status])
+
+  useEffect(() => {
     function handleOpenEvent(event: Event) {
       const customEvent = event as CustomEvent<{ link?: string }>
       const link = customEvent.detail?.link
